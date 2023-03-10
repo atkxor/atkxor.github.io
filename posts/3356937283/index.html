@@ -19,7 +19,7 @@
     <meta name="description" content="@TOC 漏洞简介DNS  DNS是Domain Name System的简写，即域名系统，它作为可以将域名和IP地址相互映射的一个分布式数据库，能够使人更方便的访问互联网。简单地说，如果我们想访问岂安科技的官网，本来需要输入网站主机的IP地址，但是DNS可以将http:&#x2F;&#x2F;www.bigsec.com解析成对应的IP地址，我们就不需要记住复杂的IP地址了。  DNS劫持  域名劫持是互联网攻击的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="局域网下的DNS欺骗复现">
-<meta property="og:url" content="http://atkxor.top/posts/3356937283/index.html">
+<meta property="og:url" content="https://atkx.top/posts/3356937283/index.html">
 <meta property="og:site_name" content="Atkx&#39;s Blog">
 <meta property="og:description" content="@TOC 漏洞简介DNS  DNS是Domain Name System的简写，即域名系统，它作为可以将域名和IP地址相互映射的一个分布式数据库，能够使人更方便的访问互联网。简单地说，如果我们想访问岂安科技的官网，本来需要输入网站主机的IP地址，但是DNS可以将http:&#x2F;&#x2F;www.bigsec.com解析成对应的IP地址，我们就不需要记住复杂的IP地址了。  DNS劫持  域名劫持是互联网攻击的">
 <meta property="og:locale" content="zh_CN">
@@ -33,8 +33,8 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20210312223641717.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20210312221431543.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20210312222117273.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
-<meta property="article:published_time" content="2023-03-10T12:28:18.000Z">
-<meta property="article:modified_time" content="2023-03-10T12:35:46.663Z">
+<meta property="article:published_time" content="2021-04-12T12:28:18.000Z">
+<meta property="article:modified_time" content="2023-03-10T13:21:48.456Z">
 <meta property="article:author" content="Atkx">
 <meta property="article:tag" content="DNS欺骗">
 <meta name="twitter:card" content="summary_large_image">
@@ -80,7 +80,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"atkxor.top","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"atkx.top","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -219,8 +219,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-03-10 20:28" pubdate>
-          2023年3月10日 晚上
+        <time datetime="2021-04-12 20:28" pubdate>
+          2021年4月12日 晚上
         </time>
       </span>
     
@@ -333,7 +333,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>局域网下的DNS欺骗复现</div>
-      <div>http://atkxor.top/posts/3356937283/</div>
+      <div>https://atkx.top/posts/3356937283/</div>
     </div>
     <div class="license-meta">
       
@@ -345,7 +345,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年3月10日</div>
+          <div>2021年4月12日</div>
         </div>
       
       
@@ -377,9 +377,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/posts/280130674/" title="HTTP请求走私漏洞">
+                      <a href="/posts/1618977825/" title="USB流量分析">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">HTTP请求走私漏洞</span>
+                        <span class="hidden-mobile">USB流量分析</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -387,8 +387,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/posts/2175665633/" title="漏扫工具-AWVS">
-                        <span class="hidden-mobile">漏扫工具-AWVS</span>
+                      <a href="/posts/3907386982/" title="深入学习HTTP协议">
+                        <span class="hidden-mobile">深入学习HTTP协议</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
