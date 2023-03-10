@@ -1,0 +1,739 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/atkx.png">
+  <link rel="icon" href="/img/atkx.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Atkx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="验证机制**** 登陆处返回包中有验证码 返回页面 hidden中有验证码 有些其他登陆url中不需要验证码 验证码不变，验证码没有一个完整的服务请求，只在刷新url时才变 第一次请求包验证了验证码是否正确，第二次请求不需要验证 拦截登录时验证码的刷新请求，第一次验证码未失效，可绕过 验证码和用户名、密码是否一次同时提交 忘记密码 *** 先确定web中有忘记密码或者能实现此类功能的点 使用受控制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="渗透测试逻辑漏洞总结">
+<meta property="og:url" content="https://atkxor.github.io/posts/1020619168/index.html">
+<meta property="og:site_name" content="Atkx&#39;s Blog">
+<meta property="og:description" content="验证机制**** 登陆处返回包中有验证码 返回页面 hidden中有验证码 有些其他登陆url中不需要验证码 验证码不变，验证码没有一个完整的服务请求，只在刷新url时才变 第一次请求包验证了验证码是否正确，第二次请求不需要验证 拦截登录时验证码的刷新请求，第一次验证码未失效，可绕过 验证码和用户名、密码是否一次同时提交 忘记密码 *** 先确定web中有忘记密码或者能实现此类功能的点 使用受控制">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-27T12:29:10.000Z">
+<meta property="article:modified_time" content="2023-03-10T12:48:03.214Z">
+<meta property="article:author" content="Atkx">
+<meta property="article:tag" content="逻辑漏洞">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>渗透测试逻辑漏洞总结 - Atkx&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"atkxor.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Atkx</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg_image2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="渗透测试逻辑漏洞总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-06-27 20:29" pubdate>
+          2021年6月27日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">渗透测试逻辑漏洞总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="验证机制"><a href="#验证机制" class="headerlink" title="验证机制"></a>验证机制</h2><p>**<br>**</p>
+<h3 id="登陆处"><a href="#登陆处" class="headerlink" title="登陆处"></a>登陆处</h3><p>返回包中有验证码</p>
+<p>返回页面 hidden中有验证码</p>
+<p>有些其他登陆url中不需要验证码</p>
+<p>验证码不变，验证码没有一个完整的服务请求，只在刷新url时才变</p>
+<p>第一次请求包验证了验证码是否正确，第二次请求不需要验证</p>
+<p>拦截登录时验证码的刷新请求，第一次验证码未失效，可绕过</p>
+<p>验证码和用户名、密码是否一次同时提交</p>
+<h3 id="忘记密码"><a href="#忘记密码" class="headerlink" title="忘记密码"></a>忘记密码</h3><hr>
+<p>***</p>
+<p>先确定web中有忘记密码或者能实现此类功能的点</p>
+<p>使用受控制的账户执行一次完成的正常顺序，（建议画流程图）主要为了了解机制</p>
+<p>如果恢复机制用质询，确定用户是否能够设定或选择他们自己的质询和响应，若用户可以设定或选择自己的质询与响应，使用一组已知账户获取正确质询，然后找出易猜测的响应质询</p>
+<p>若恢复机制中使用密码暗示，可以参考上一段方法</p>
+<p>若恢复申请中目标给你发了包含恢复URL的邮件，可以大量获取这种邮件，试图确定其他用户的恢复链接，或者分析会话牌</p>
+<h3 id="记住我"><a href="#记住我" class="headerlink" title="记住我"></a>记住我</h3><p>查看所有的记住我功能，确定应用程序是记住用户名还是用户名和密码还是密码，还是仍然要求用户在随后的访问中输入密码。若采用后一种设置(仍然要求用户在随后的访问中输入密码）就不太可能存在这个漏洞</p>
+<p>查看程序的cookie是否是持久性，以及其他本地存储机制的持久性数据，如IE的userData，seilverlight的隔离存储等，看是否有包含明显的用户或者可预测的用户标识</p>
+<p>修改持久cookie的内容，根据具体情况让程序认为另一个用户已经保存在你本地</p>
+<h2 id="验证机制执行缺陷"><a href="#验证机制执行缺陷" class="headerlink" title="验证机制执行缺陷"></a>验证机制执行缺陷</h2><h3 id="开放登录机制"><a href="#开放登录机制" class="headerlink" title="开放登录机制*** ***"></a>开放登录机制*** ***</h3><p>使用控制的一个帐户执行一次完整型，有效的登录。使用拦截代理服务器记录提交每一份请求和响应</p>
+<p>进行多次登录，以非正常的方式修改请求，eg：对于客户端传送的每一个参数或者cookie：</p>
+<p>1.提交一个空字符</p>
+<p>2.删除名、值</p>
+<p>3.提交相反的字符串代替数字</p>
+<p>检查提交的每个响应的差异</p>
+<h3 id="session会话"><a href="#session会话" class="headerlink" title="session会话"></a>session会话</h3><p>**<br>**</p>
+<p>f12中firebug中的session是在不断变化，一般会用作验证用户的身份和标识</p>
+<h3 id="session接口篡改"><a href="#session接口篡改" class="headerlink" title="session接口篡改"></a>session接口篡改</h3><hr>
+<p>***</p>
+<p>准备两个账号，一个a账号一个b账号，b为受害者，a为攻击者。来到密码重置的地方，先输入a账号，然后发送验证码，等到有出现重新发送验证码的时候然后开bp再次点击重新发送验证码输入抓包，然后把包里的a账号改成b账号，然后放包然后这个验证码就会到攻击者那里（也就是a账号）这样你就可以重置受害者账号（也就是b账号）</p>
+<h3 id="session覆盖攻击"><a href="#session覆盖攻击" class="headerlink" title="session覆盖攻击"></a>session覆盖攻击</h3><p>利用Session生成并会覆盖上一个会话的特点，先使用攻击者的Session绕过业务系统的限制，然后将Session覆盖成目标的Session，从原有的业务点上进行敏感操作，从而伪造目标身份，完成危险操作，被称为Session覆盖攻击</p>
+<p>攻击者在找回密码处输入自己的账号，然后点击发送验证码，输入验证码</p>
+<p>验证码验证成功，跳转到设置新密码处</p>
+<p>攻击者新建一个浏览器标签卡，并在新建的标签卡重新打开找回密码的链接</p>
+<p>输入目标的账号，点击发送验证码</p>
+<p>回到攻击者设置新密码的标签卡，F5刷新</p>
+<p>设置新密码，点击确认，成功更改目标密码</p>
+<p>**<br>**</p>
+<h2 id="密码重置"><a href="#密码重置" class="headerlink" title="密码重置"></a>密码重置</h2><h3 id="验证码不合理"><a href="#验证码不合理" class="headerlink" title="验证码不合理"></a>验证码不合理</h3><p>缺少对时间和错误次数限制，导致可枚举验证码，一般对4位数字验证码进行枚举;图片验证码补充</p>
+<p>密码错误后前端向后端重新获取新的验证码，前端拦截获取新的验证码请求，使其旧验证码不过期，可以辅以暴力破解</p>
+<p>密码错误后前端向后端重新获取新的验证码，前端拦截获取新的验证码请求，使其旧验证码不过期，可以辅以暴力破解</p>
+<h3 id="客户端验证"><a href="#客户端验证" class="headerlink" title="客户端验证"></a>客户端验证</h3><p>前端js判断验证码是否正确</p>
+<h3 id="修改请求信息"><a href="#修改请求信息" class="headerlink" title="修改请求信息"></a>修改请求信息</h3><p>通过修改自己密码，然后替换请求中对应用户的例如: user、id值，即可修改他人密码</p>
+<p>例如请求body ,遍历Userid字段即可批量重置，如果后端校验可尝试替换会话信息如cookie和token进行绕过</p>
+<p>Userid:1&amp;Pwd:123456</p>
+<h3 id="弱凭证"><a href="#弱凭证" class="headerlink" title="弱凭证"></a>弱凭证</h3><hr>
+<p>***</p>
+<p>如有些业务是通过发送邮件进行密码重置的，可以通过对凭证用户id或时间戳进行枚举凭证重置越权其他人的密码一种场景知道用户名和用户号就可以对该用户进行密码重置，重置后的密码通过邮件发送，可以通过暴力破解用户名和用户号进行任意密码重置，只是重置后的密码无</p>
+<h2 id="越权"><a href="#越权" class="headerlink" title="越权"></a>越权</h2><h3 id="横向"><a href="#横向" class="headerlink" title="横向"></a>横向</h3><p>指的是权限平级的两个用户之间的越权访问。<br>比如，一个正常的用户A通常只能够对自己的一些信息进行增删改查，但是由于程序员的一时疏忽未对信息进行增删改查的时候进行一个判断，判断所需要操作的信息是否属于对应的用户，因此，导致用户A可以操作其他人的信息。</p>
+<p>包含了用户标识且可控</p>
+<h3 id="纵向"><a href="#纵向" class="headerlink" title="纵向"></a>纵向</h3><p>指的是权限不等的两个用户之间的越权访问。</p>
+<p>一般都是，低权限的用户可以直接访问高权限的用户的信息</p>
+<p>一般有权限标识</p>
+<h2 id="支付逻辑"><a href="#支付逻辑" class="headerlink" title="支付逻辑"></a>支付逻辑</h2><h3 id="签约"><a href="#签约" class="headerlink" title="签约"></a>签约</h3><p>首先这个活动要有标识，如：一个账号只有一次福利/新人….，这种才可以</p>
+<p>首先用a设备登录跳转到支付页面这时先不要支付，再用b设备登录同样的账号也停留在活动的支付页，然后a，b两个设备一起支付。就是等于一个东西充值了2个月或者其他，超出了活动规定</p>
+<h3 id="价格修改"><a href="#价格修改" class="headerlink" title="价格修改"></a>价格修改</h3><hr>
+<p>***</p>
+<p>在请求包中包含了你所购买的价格然后修改价格放包</p>
+<h3 id="数量"><a href="#数量" class="headerlink" title="数量"></a>数量</h3><hr>
+<p>***</p>
+<p>你买一个物品，包里包含了你购买的数量试着把数量改成负数，如果价格变少或者免费，则okk</p>
+<h3 id="支付状态"><a href="#支付状态" class="headerlink" title="支付状态"></a>支付状态</h3><hr>
+<p>***</p>
+<p>没有对支付状态的值跟实际订单支付状态进行校验，导致点击支付时抓包修改决定支付或未支付的参数为支付状态的值从而达到支付成功</p>
+<h3 id="优惠券、积分"><a href="#优惠券、积分" class="headerlink" title="优惠券、积分"></a>优惠券、积分</h3><p>如果优惠券、折扣券、积分等可以换取相应的物品，那么也有可能出现支付漏洞，这个流程与一般支付流程类似，可以尝试挖掘。</p>
+<p>修改优惠劵金额</p>
+<p>具体看优惠券的兑换方式，如果的是满减型，那么就尝试修改优惠券的金额、修改商品价格。如果是折扣类型，那么就尝试折扣程度。</p>
+<p>修改优惠劵金额及业务逻辑问题</p>
+<p>具体看优惠券的业务逻辑，比如说，如果支付价格为0时，会报错，提示购买失败，这是因为网站后台不允许提交0元的商品购买订单。</p>
+<p>修改积分金额</p>
+<p>修改积分金额与上面几点类似，同样是抓包判断能不能修改相关信息。</p>
+<h3 id="多重替换支付"><a href="#多重替换支付" class="headerlink" title="多重替换支付"></a>多重替换支付</h3><p>支付过程中，网站没有验证商品价格和用户的支付价格。首先去产生两个订单，这两个订单商品是不一样的，其价格不一样，如果服务端没有做好这相关的验证，那么在支付的过程当中抓包，修改其订单值为另一个订单值，最后支付，这时就可以用订单一的支付价格买到订单的商品</p>
+<hr>
+<p>***</p>
+<h3 id="重复支付"><a href="#重复支付" class="headerlink" title="重复支付"></a>重复支付</h3><p>一些交易市场有一类似于试用牌子或者其它，这个试用牌子可以依靠签到获得，而这个牌子的作用可以去试用一些商品，在你进行试用的时候会扣掉你的试用牌子，当你试用完成或者主动取消试用时，试用牌子会返回到账户当中。如果没有进行对订单多重提交的校验，那么就可导致无限制刷牌子，比如，你试用时抓包，然后你每次试用都会产生一个订单号，然后利用刚抓到的数据包进行批量提交，你就可以看到每次提交的订单号不一样，然后这时你再看订单可以看到同一个商品的无数订单，但试用牌子数只扣了你第一个试验时的牌子数，那么这时你申请批量退出试用，那么这么多订单，每退一个就会退相应的</p>
+<p>牌子数量到账户当中，这就构成了无限制刷得问题</p>
+<hr>
+<p>***</p>
+<h3 id="值为最大值支付"><a href="#值为最大值支付" class="headerlink" title="值为最大值支付"></a>值为最大值支付</h3><p>以前也是看到过相关的例子，一些网站比如你购买商品，这里有2个思路修改值，1是直接修改支付金额值为最大值，比如999999999，或者修改附属值，如优惠卷，积分等为999999999，如果这里逻辑设计有问题，那么其支付金额会变为0</p>
+<h3 id="无限制试用"><a href="#无限制试用" class="headerlink" title="无限制试用"></a>无限制试用</h3><p>一些网站的一些商品，比如云系列产品支持试用，试用时期一般为7天或者30天，一个账户只能试用一次，试用期间不能再试用，但如果这个试用接口没做好分配那么很容易导致问题的发生</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" class="category-chain-item">渗透测试</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/">#逻辑漏洞</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>渗透测试逻辑漏洞总结</div>
+      <div>https://atkxor.github.io/posts/1020619168/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Atkx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年6月27日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/7231741/" title="PHP代码审计简历系统">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">PHP代码审计简历系统</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/468889284/" title="后渗透阶段清理痕迹方式总结">
+                        <span class="hidden-mobile">后渗透阶段清理痕迹方式总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<!-- script type="text/javascript" src="/js/love.js"></script-->
+
+<!-- 鼠标点击烟花爆炸效果-->
+<canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+<script type="text/javascript" src="/js/fireworks.js"></script>
+
+
+<!--动态线条背景-->
+<script type="text/javascript"
+color="220,220,220" opacity='0.7' zIndex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+</script>
+

